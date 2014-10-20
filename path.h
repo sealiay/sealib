@@ -19,7 +19,7 @@ static bool is_abs(const std::string &p) {
 	return !p.empty() && p.front() == '/';
 }
 
-static std::string simplify(std::string &&path) {
+static std::string simplify(std::string path) {
 	auto next = [&path] (std::string::iterator b) {
 		if ( *b == '/' ) ++b;
 		return ipair(b, find(b, path.end(), '/'));
@@ -47,10 +47,6 @@ static std::string simplify(std::string &&path) {
 	path.erase(w, path.end());
 	if ( abs && path.empty() ) path.push_back('/');
 	return move(path);
-}
-
-static std::string simplify(const std::string &p) {
-	return simplify(std::string(p));
 }
 
 
@@ -98,6 +94,21 @@ static std::string current() {
 static std::string make_abs(const std::string &p) {
 	return join(current(), p);
 }
+
+static std::string name_of(std::string p) {
+	auto i = find(p.rbegin(), p.rend(), '/');
+	if ( i == p.rend() ) return std::move(p);
+	p.erase(p.begin(), i.base());
+	return std::move(p);
+}
+
+static std::string path_of(std::string p) {
+	auto i = find(p.rbegin(), p.rend(), '/');
+	if ( i == p.rend() ) return move(p.assign("./"));
+	p.erase(i.base(), p.end());
+	return std::move(p);
+}
+
 
 }
 }
