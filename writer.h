@@ -5,6 +5,7 @@
 #include "macro.h"
 
 #include <algorithm>
+#include <functional>
 #include <ostream>
 #include <string>
 #include <vector>
