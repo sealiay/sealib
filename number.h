@@ -107,10 +107,14 @@ static constexpr T cast(F v) {
 	return std::is_floating_point<F>::value && !std::is_floating_point<T>::value ? (T)round(v) : (T)v;
 }
 
-template <typename T>
-static constexpr T mul10(T v, int n) {
-	return n == 0 ? v : n > 0 ? mul10(v*10, n-1) : mul10(v/10, n+1);
-}
+
+template <typename T, int R>
+struct mul10 {
+	static constexpr T value = std::conditional<(R < 0), mul10<T, -R>, typename std::conditional<(R > 0), mul10<T, R-1>, std::integral_constant<int, 1>>::type>::type::value * (R > 0 ? 10 : 1);
+	static constexpr T calc(T v) {
+		return R > 0 ? v * value : v / value;
+	}
+};
 
 template <typename T, typename N>
 struct aser {
@@ -122,7 +126,7 @@ struct aser<number<T, D, R, G>, N> {
 	constexpr number<T, D, R, G> operator()(N n) const {
 		typedef common<typename N::value_type, T> ct;
 		typedef std::integral_constant<int, N::ratio_type::value - R::value> rt;
-		return number<T, D, R, G>(cast<T>(mul10((ct)n.val(), rt::value)));
+		return number<T, D, R, G>(cast<T>(mul10<ct, rt::value>::calc((ct)n.val())));
 	}
 };
 
